@@ -1,0 +1,40 @@
+# Maintainer: Andrii Burkivskyi <aburkivskyi@outlook.com>
+# shellcheck disable=SC2034,SC2154,SC2164
+
+pkgname=payload-dumper-go
+pkgver=1.2.2
+pkgrel=1
+pkgdesc="An Android OTA payload dumper written in Go."
+arch=('aarch64' 'x86_64')
+url="https://github.com/ssut/payload-dumper-go"
+license=('Apache')
+makedepends=("golang>=1.14")
+options=(!buildflags)
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
+md5sums=('a7747a8affe930514c88e62928c5dd2d')
+
+prepare() {
+	export GOPATH="${srcdir}/gopath"
+
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	go mod tidy
+	go mod download
+}
+
+build() {
+	export GOPATH="${srcdir}/gopath"
+	export CGO_CPPFLAGS="${CPPFLAGS}"
+	export CGO_CFLAGS="${CFLAGS}"
+	export CGO_CXXFLAGS="${CXXFLAGS}"
+	export CGO_LDFLAGS="${LDFLAGS}"
+
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	CGO_ENABLE=0 go build -trimpath -o ./${pkgname} .
+}
+
+package() {
+	install -Dt "${terdir}/usr/bin/" -m700 "${srcdir}/${pkgname}-${pkgver}/${pkgname}"
+	install -Dt "${terdir}/usr/share/${pkgname}/" -m600 "${srcdir}/${pkgname}-${pkgver}/LICENSE"
+}
+
