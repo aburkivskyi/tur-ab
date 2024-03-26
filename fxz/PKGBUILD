@@ -1,0 +1,30 @@
+# Maintainer: silentnoodle <silentnoodle at cock dot li>
+pkgname=fxz
+pkgver=1.1.0alpha.r94.gf12d7eb
+pkgrel=1
+pkgdesc="FXZ Utils is a fork of XZ Utils. It adds a multi-threaded radix match finder and optimized encode"
+arch=("aarch64")
+url="https://github.com/conor42/fxz"
+license=('GPL' 'custom:xz')
+depends=('dash')
+makedepends=('git' 'autoconf')
+source=('git+https://github.com/conor42/fxz#branch=master')
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$pkgname"
+  git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+build() {
+  cd "$pkgname"
+  autoreconf -fi
+  ./configure --prefix=${prefix}
+  make
+}
+
+package() {
+  cd "$pkgname"
+
+  make DESTDIR="$pkgdir/" install
+}
